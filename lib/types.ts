@@ -2,11 +2,11 @@ export interface Website {
   id: string;
   name: string;
   url: string;
-  imageUrl: string;
+  image_url: string;
   tags: string[];
   notes: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface ReleaseNote {
@@ -17,13 +17,13 @@ export interface ReleaseNote {
   year: number;
   month: number;
   tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export enum TodoStatus {
   INIT = "init",
-  IN_PROGRESS = "in progress",
+  IN_PROGRESS = "processing",
   COMPLETE = "complete",
 }
 
@@ -33,6 +33,6 @@ export interface Todo {
   content: string;
   owner: string;
   status: TodoStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }

@@ -1,22 +1,6 @@
 import type { Config } from "tailwindcss"
 import { fontFamily } from "tailwindcss/defaultTheme";
 
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   darkMode: ["class"],
-//   content: [
-//     "app/**/*.{ts,tsx}",
-//     "components/**/*.{ts,tsx}",
-//     "styles/globals.css",
-//   ],
-//   theme: {
-//     extend: {
-//       fontFamily: {
-//         sans: ["var(--font-sans)", ...fontFamily.sans],
-//       },
-//     },
-//   },
-// };
 
 const config = {
   darkMode: ["class"],

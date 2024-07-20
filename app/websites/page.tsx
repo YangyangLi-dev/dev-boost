@@ -11,7 +11,7 @@ export default function Websites() {
   const [newWebsite, setNewWebsite] = useState({
     name: "",
     url: "",
-    imageUrl: "",
+    image_url: "",
     tags: "",
     notes: "",
   });
@@ -32,7 +32,7 @@ useEffect(() => {
     });
     if (createdWebsite) {
       setWebsites([...websites, createdWebsite]);
-      setNewWebsite({ name: "", url: "", imageUrl: "", tags: "", notes: "" });
+      setNewWebsite({ name: "", url: "", image_url: "", tags: "", notes: "" });
     }
   };
 
@@ -70,9 +70,9 @@ useEffect(() => {
           <input
             type="url"
             placeholder="imageUrl"
-            value={newWebsite.imageUrl}
+            value={newWebsite.image_url}
             onChange={(e) =>
-              setNewWebsite({ ...newWebsite, imageUrl: e.target.value })
+              setNewWebsite({ ...newWebsite, image_url: e.target.value })
             }
             className="border p-2 mr-2"
           />

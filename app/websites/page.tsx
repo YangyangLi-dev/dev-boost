@@ -1,16 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import { websiteDao } from "@/lib/db";
+import { Website } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
 export default function Websites() {
-  const [websites, setWebsites] = useState<{ name: string; url: string; }[]>([]);
-  const [newWebsite, setNewWebsite] = useState({ name: "", url: "" });
+  const [websites, setWebsites] = useState<Website[]>([]);
+  const [newWebsite, setNewWebsite] = useState({
+    name: "",
+    url: "",
+    imageUrl: "",
+    tags: "",
+    notes: "",
+  });
 
-  const addWebsite = (e: React.FormEvent<HTMLFormElement>) => {
+useEffect(() => {
+  const fetchWebsites = async () => {
+    const sites = await websiteDao.readAll();
+    setWebsites(sites);
+  };
+  fetchWebsites();
+}, []);
+
+  const addWebsite = async (e: React.FormEvent) => {
     e.preventDefault();
-    setWebsites([...websites, newWebsite]);
-    setNewWebsite({ name: "", url: "" });
+    const createdWebsite = await websiteDao.create({
+      ...newWebsite,
+      tags: newWebsite.tags.split(",").map((tag) => tag.trim()),
+    });
+    if (createdWebsite) {
+      setWebsites([...websites, createdWebsite]);
+      setNewWebsite({ name: "", url: "", imageUrl: "", tags: "", notes: "" });
+    }
+  };
+
+  const deleteWebsite = async (id: string) => {
+    const success = await websiteDao.delete(id);
+    if (success) {
+      setWebsites(websites.filter((website) => website.id !== id));
+    }
   };
 
   return (
@@ -37,9 +67,36 @@ export default function Websites() {
             }
             className="border p-2 mr-2"
           />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          <input
+            type="url"
+            placeholder="imageUrl"
+            value={newWebsite.imageUrl}
+            onChange={(e) =>
+              setNewWebsite({ ...newWebsite, imageUrl: e.target.value })
+            }
+            className="border p-2 mr-2"
+          />
+          <input
+            type="text"
+            placeholder="tags"
+            value={newWebsite.tags}
+            onChange={(e) =>
+              setNewWebsite({ ...newWebsite, tags: e.target.value })
+            }
+            className="border p-2 mr-2"
+          />
+          <input
+            type="text"
+            placeholder="notes"
+            value={newWebsite.notes}
+            onChange={(e) =>
+              setNewWebsite({ ...newWebsite, notes: e.target.value })
+            }
+            className="border p-2 mr-2"
+          />
+          <Button type="submit" className="bg-blue-500 text-white p-2 rounded">
             Add Website
-          </button>
+          </Button>
         </form>
         <ul>
           {websites.map((site, index) => (

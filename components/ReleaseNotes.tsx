@@ -4,10 +4,10 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 
 export default function ReleaseNotes() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<{ date: string; version: string; content: string; }[]>([]);
   const [newNote, setNewNote] = useState({ version: "", content: "" });
 
-  const addNote = (e) => {
+  const addNote = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setNotes([...notes, { ...newNote, date: new Date().toISOString() }]);
     setNewNote({ version: "", content: "" });

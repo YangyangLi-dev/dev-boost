@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import ReleaseNoteList from "@/components/ReleaseNoteList";
 import {
   getAvailableReleaseNotesMonths,
@@ -50,6 +51,7 @@ export default async function FilteredReleaseNotesPage({
 
   return (
     <div>
+        <Navbar></Navbar>
       <h1>Release Notes</h1>
       <div>
         {links.map((link) => (

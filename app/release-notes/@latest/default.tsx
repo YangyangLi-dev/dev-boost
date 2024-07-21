@@ -4,21 +4,53 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { releaseNoteDao } from "@/lib/db";
 import { ReleaseNote } from "@/lib/types";
+import Link from "next/link";
 
-export default function ReleaseNotes() {
+export default function ReleaseNotes({
+  params,
+}: {
+  params: { filter: string[] };
+}) {
   const [notes, setNotes] = useState<ReleaseNote[]>([]);
   const [newNote, setNewNote] = useState({ title: "", content: "" });
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(
+    params.filter?.[0] ? parseInt(params.filter[0]) : undefined
+  );
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>(
+    params.filter?.[1] ? parseInt(params.filter[1]) : undefined
+  );
 
   useEffect(() => {
     fetchReleaseNotes();
-  }, []);
+    fetchAvailableYears();
+  }, [selectedYear, selectedMonth]);
 
   const fetchReleaseNotes = async () => {
     try {
-      const fetchedNotes = await releaseNoteDao.readAll();
+      let fetchedNotes;
+      if (selectedYear && selectedMonth) {
+        fetchedNotes = await releaseNoteDao.readByYearAndMonth(
+          selectedYear,
+          selectedMonth
+        );
+      } else if (selectedYear) {
+        fetchedNotes = await releaseNoteDao.readByYear(selectedYear);
+      } else {
+        fetchedNotes = await releaseNoteDao.readAll();
+      }
       setNotes(fetchedNotes);
     } catch (error) {
       console.error("Failed to fetch release notes:", error);
+    }
+  };
+
+  const fetchAvailableYears = async () => {
+    try {
+      const years = await releaseNoteDao.getAvailableYears();
+      setAvailableYears(years);
+    } catch (error) {
+      console.error("Failed to fetch available years:", error);
     }
   };
 
@@ -48,17 +80,38 @@ export default function ReleaseNotes() {
   };
 
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen">
       <Navbar />
       <main className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Release Notes</h1>
-        <form onSubmit={addNote} className="mb-4">
+        <h1 className="text-3xl font-bold mb-6">Release Notes</h1>
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Filter by Year</h2>
+          <div className="flex flex-wrap gap-2">
+            {availableYears.map((year) => (
+              <Link
+                key={year}
+                href={`/release-notes/${year}`}
+                className={`px-3 py-1 rounded ${
+                  selectedYear === year
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-blue-500 hover:bg-blue-100"
+                }`}
+              >
+                {year}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <form onSubmit={addNote} className="bg-white p-4 rounded shadow mb-6">
+          <h2 className="text-xl font-semibold mb-4">Add New Release Note</h2>
           <input
             type="text"
             placeholder="Version/Title"
             value={newNote.title}
             onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-            className="border p-2 mr-2"
+            className="w-full border p-2 mb-2 rounded"
           />
           <textarea
             placeholder="Release Notes Content"
@@ -66,23 +119,33 @@ export default function ReleaseNotes() {
             onChange={(e) =>
               setNewNote({ ...newNote, content: e.target.value })
             }
-            className="border p-2 mr-2"
+            className="w-full border p-2 mb-2 rounded h-24"
           />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          >
             Add Release Note
           </button>
         </form>
-        <ul>
-          {notes.map((note) => (
-            <li key={note.id} className="mb-4">
-              <h3 className="text-xl font-semibold">{note.title}</h3>
-              <p className="text-gray-500">
-                {new Date(note.timestamp).toLocaleDateString()}
-              </p>
-              <p>{note.content}</p>
-            </li>
-          ))}
-        </ul>
+
+        <div className="space-y-4">
+          {notes.length > 0 ? (
+            notes.map((note) => (
+              <div key={note.id} className="bg-white p-4 rounded shadow">
+                <h3 className="text-xl font-semibold">{note.title}</h3>
+                <p className="text-gray-500 text-sm mb-2">
+                  {new Date(note.timestamp).toLocaleDateString()}
+                </p>
+                <p className="text-gray-700">{note.content}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">
+              No release notes for the selected period
+            </p>
+          )}
+        </div>
       </main>
     </div>
   );
